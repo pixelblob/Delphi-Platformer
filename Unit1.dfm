@@ -46,4 +46,10 @@ object Form1: TForm1
     Left = 416
     Top = 152
   end
+  object fpsLowStart: TTimer
+    Interval = 5000
+    OnTimer = fpsLowStartTimer
+    Left = 176
+    Top = 88
+  end
 end
