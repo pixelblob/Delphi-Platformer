@@ -55,7 +55,7 @@ var
   platforms: array of TPlatform;
   grounded: Boolean;
   jump, controlleft, controlright, canJump: Boolean;
-  fps, lastFps, fpsLow, tps, lastTps: Integer;
+  fps, lastFps, fpsLow, tps, lastTps, offsetX, offsetY: Integer;
   gameThread: TGameThreadThread;
 
 implementation
@@ -97,11 +97,11 @@ begin
     // player.yVelocity := player.yVelocity - 0.1;
 
     for I := 0 to LENGTH(platforms) - 1 do begin
-      if ((player.x > platforms[I].x - 50) and (player.x < platforms[I].x + 50) and (player.y <= platforms[I].y + 25) and (player.y > platforms[I].y - 25))
+      if ((player.x > platforms[I].x - 50+offsetX) and (player.x < platforms[I].x + 50+offsetX) and (player.y <= platforms[I].y + 25 - offsetY) and (player.y > platforms[I].y - 25 -offsetY))
         then begin
 
-        if ((player.y > platforms[I].y - 30) and (player.y <= platforms[I].y + 5)) then begin
-          player.y := platforms[I].y - 30;
+        if ((player.y > platforms[I].y - 30 -offsetY) and (player.y <= platforms[I].y + 5 - offsetY)) then begin
+          player.y := platforms[I].y - 30 - offsetY;
           player.yVelocity := 0;
         end
         else begin
@@ -111,6 +111,25 @@ begin
 
       end;
     end;
+
+    if player.x < Form1.ClientWidth/3 then begin
+      offsetX := offsetX+2;
+      player.x := player.x+2;
+    end
+    else if player.x > Form1.ClientWidth/3*2 then begin
+      offsetX := offsetX-2;
+      player.x := player.x-2;
+    end else if player.y > Form1.ClientHeight/4*3 then begin
+      offsetY := round(offSetY +ABS(player.yVelocity));
+      player.y := round(player.y -ABS(player.yVelocity))
+    end else if player.y < Form1.ClientHeight/4*1 then begin
+      offsetY := round(offSetY - ABS(player.yVelocity));
+      player.y := round(player.y + ABS(player.yVelocity))
+    end;
+
+
+
+
 
 
     if ((jump) and canJump) then
@@ -183,6 +202,9 @@ begin
   fps := 0;
   lastFps := 0;
 
+  offsetX := 0;
+  offsetY := 0;
+
   player := TPlayer.Create;
 
   player.x := 200;
@@ -234,11 +256,13 @@ begin
     controlright := false;
   end;
   if ((ORD(Key) = 69) or (ORD(Key) = 82)) then begin
-    createPlatform(round(player.x), round(player.y - 30));
+    createPlatform(round(player.x)+offsetX, round(player.y - 30));
   end;
   if (ORD(Key) = 27) then begin
     // gameThread.Free;
     // gameThread.Terminate;
+    offsetX := offsetX +10;
+    offsetY := offsetY + 10;
   end;
 end;
 
@@ -291,13 +315,13 @@ begin
 
   for I := 0 to LENGTH(platforms) - 1 do begin
 
-    if ((P.x > (platforms[I].x - 50)) and (P.x < (platforms[I].x + 50)) and (Form1.ClientHeight - P.y < platforms[I].y + 15) and
-        (Form1.ClientHeight - P.y > platforms[I].y - 15)) then begin
+    if ((P.x > (platforms[I].x - 50+offsetX)) and (P.x < (platforms[I].x + 50+offsetX)) and (Form1.ClientHeight - P.y < platforms[I].y + 15 -offsetY) and
+        (Form1.ClientHeight - P.y > platforms[I].y - 15-offsetY)) then begin
       gameCanvas.canvas.pen.color := clRed;
 
     end;
 
-    gameCanvas.canvas.rectangle(platforms[I].x - 50, Form1.ClientHeight - platforms[I].y - 15, platforms[I].x + 50, Form1.ClientHeight - platforms[I].y + 15);
+    gameCanvas.canvas.rectangle(platforms[I].x - 50+offsetX, Form1.ClientHeight - platforms[I].y - 15 +offsetY, platforms[I].x + 50+offsetX, Form1.ClientHeight - platforms[I].y + 15 + offsetY);
     gameCanvas.canvas.pen.color := clYellow;
 
   end;
@@ -329,6 +353,10 @@ begin
     TextOut(5, textOffset, Format('TPS: %d', [lastTps]));
     textOffset := textOffset + Font.Size * 2;
     TextOut(5, textOffset, Format('Obj: %d', [Length(platforms)]));
+    textOffset := textOffset + Font.Size * 2;
+    TextOut(5, textOffset, Format('Offset-X: %d', [offsetX]));
+    textOffset := textOffset + Font.Size * 2;
+    TextOut(5, textOffset, Format('Offset-Y: %d', [offsetY]));
   end;
 
   inc(fps)
@@ -353,14 +381,14 @@ begin
 
   if Button = mbLeft then begin
     writeln('LEFT button');
-    createPlatform(round(P.x), Form1.ClientHeight - (P.y));
+    createPlatform(round(P.x)-offsetX, Form1.ClientHeight - (P.y)+offsetY);
 
   end
   else if Button = mbRight then begin
     writeln('RIGHT button');
     for I := 0 to LENGTH(platforms) - 1 do begin
-      if ((P.x > (platforms[I].x - 50)) and (P.x < (platforms[I].x + 50)) and (Form1.ClientHeight - P.y < platforms[I].y + 15) and
-          (Form1.ClientHeight - P.y > platforms[I].y - 15)) then begin
+      if ((P.x > (platforms[I].x - 50+offsetX)) and (P.x < (platforms[I].x + 50+offsetX)) and (Form1.ClientHeight - P.y < platforms[I].y + 15 - offsetY) and
+          (Form1.ClientHeight - P.y > platforms[I].y - 15 - offsetY)) then begin
         // platforms[I].Destroy;
         // SetLength(platforms, LENGTH(platforms) - 1);
         ALength := LENGTH(platforms);

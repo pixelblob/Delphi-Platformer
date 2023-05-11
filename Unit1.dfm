@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 617
   Top = 386
   Caption = 'Form1'
-  ClientHeight = 242
-  ClientWidth = 527
+  ClientHeight = 463
+  ClientWidth = 850
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -22,11 +22,13 @@ object Form1: TForm1
   object gameCanvas: TImage
     Left = 0
     Top = 0
-    Width = 527
-    Height = 242
+    Width = 850
+    Height = 463
     Align = alClient
     OnMouseDown = gameCanvasMouseDown
     ExplicitLeft = 8
+    ExplicitWidth = 527
+    ExplicitHeight = 242
   end
   object gameTimer: TTimer
     Enabled = False
